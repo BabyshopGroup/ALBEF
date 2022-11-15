@@ -1,6 +1,6 @@
 from snowflake_helper.snowflake_helper import SnowflakeHelper
-from BSG_embedding_generator import embedding_generator
-from closest_embedding_converter import compute_distance
+from BSG.BSG_embedding_generator import embedding_generator
+from BSG.closest_embedding_converter import compute_distance
 
 snowflake_manager = SnowflakeHelper()
 
