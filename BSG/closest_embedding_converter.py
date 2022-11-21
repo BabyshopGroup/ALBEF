@@ -1,57 +1,35 @@
 import pandas as pd
-import hnswlib
+import pynndescent
 import numpy as np
+from tqdm import tqdm
 
 
-def compute_distance(input_data='',
-                     identifier_column='',
-                     distance='cosine',
-                     n_outputs=300,
-                     upload_file=''):
-    if type(input_data)==str:
+def compute_distance(input_data,
+                     embedding_column_name: str,
+                     product_no_column_name: str,
+                     metric: str = 'cosine',
+                     n_outputs: int = 300) -> pd.DataFrame:
+    if type(input_data) == str:
         embeddings = pd.read_csv(input_data, index_col=None)
     else:
         embeddings = input_data
 
-    embeddings['embedding_ID'] = np.arange(len(embeddings))
+    data = np.stack(embeddings[embedding_column_name].to_numpy())
+    index = pynndescent.NNDescent(data, metric=metric)
+    index.prepare()
 
-    k = np.array(list(embeddings['embedding_ID'].keys()))
-
-    v = embeddings[identifier_column].values
-
-    sidx = k.argsort()
-
-    k = k[sidx]
-    v = v[sidx]
-    embedding_dimension = v[0].shape[-1]
-    num_elements = embeddings.shape[0]
-
-    p = hnswlib.Index(space=distance, dim=embedding_dimension)
-
-    p.init_index(max_elements=num_elements, ef_construction=200, M=16)
-
-    p.add_items(np.stack(embeddings['embedding'].to_numpy()),
-                np.array(embeddings['embedding_ID']))
-
+    product_numbers = embeddings[product_no_column_name].to_list()
     output_df = pd.DataFrame(columns=['id', 'output'])
-
-    for x in range(len(embeddings)):
-        labels, distances = p.knn_query(
-            np.array(embeddings.iloc[x]['embedding_ID']).reshape(-1),
-            k=n_outputs)
-
-        article = embeddings.iloc[x][identifier_column]
-
-        labels = labels.ravel()
-        mask = k==labels
-        out = np.where(mask, v, 0)
-        #idx = np.searchsorted(k, labels.ravel()).reshape(labels.shape)
-        #idx[idx == len(k)] = 0
-        #mask = k[idx] == labels
-        #out = np.where(mask, v[idx], 0)
-
-        output_df = output_df.append([{'id': article, 'output': out}], ignore_index=True)
+    for x in tqdm(range(len(embeddings))):
+        neighbors, distances = index.query(embeddings.loc[x, embedding_column_name].reshape(1, -1), k=n_outputs)
+        neighbors = neighbors[0].tolist()
+        neighbors = neighbors[1:]  # We remove the first element since it is the article we are querying itself.
+        # Not necessary if the "index" has not been trained with the vector with which we are querying.
+        closest_products = [product_numbers[x] for x in
+                            neighbors]  # TODO: figure out a way to do this step more efficient
+        product = embeddings.loc[x, product_no_column_name]
+        new_output = pd.DataFrame([{'id': product, 'output': closest_products}])
+        output_df = pd.concat([output_df, new_output], ignore_index=True)
 
     output_df['output'] = output_df['output'].astype(str)
-
-    output_df.to_csv(upload_file, index=None)
+    return output_df

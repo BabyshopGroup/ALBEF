@@ -35,7 +35,7 @@ class Predictor(BasePredictor):
 
         self.tokenizer = BertTokenizer.from_pretrained("bert/bert-base-uncased")
 
-        bert_config_path = "configs/config_bert.json"
+        bert_config_path = "BSG/configs/config_bert.json"
         self.model = VL_Transformer_ITM(
             text_encoder="bert/bert-base-uncased", config_bert=bert_config_path
         )

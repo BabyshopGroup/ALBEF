@@ -11,10 +11,10 @@ from tqdm import tqdm
 torch.device("mps")
 
 
-def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: str, use_cuda: bool):
+def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: str, use_cuda: bool) -> pd.DataFrame:
 
-    # if torch.has_mps:
-    #     device = torch.device('mps')
+    if torch.has_mps:
+        device = torch.device('mps')
     normalize = transforms.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
     transform = transforms.Compose([
         transforms.Resize((384, 384), interpolation=Image.BICUBIC),
@@ -36,11 +36,10 @@ def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: s
 
     if use_cuda:
         model.cuda()
-    # elif torch.has_mps: # For Mac M1 GPU support
-    #     model.to(device=device)
+    elif torch.has_mps: # For Mac M1 GPU support
+        model.to(device=device)
 
     embedding_data = []
-    data = data.head(10)
     for index, row in tqdm(data.iterrows(), total=data.shape[0]):
         product_no = row['bex_art_no']
         image_path = row['images_link']
@@ -55,9 +54,9 @@ def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: s
         if use_cuda:
             image = image.cuda()
             text_input = text_input.to(image.device)
-        # elif torch.has_mps:
-        #     image = image.to(device)
-        #     text_input = text_input.to(device)
+        elif torch.has_mps:
+            image = image.to(device)
+            text_input = text_input.to(device)
 
         embedding = model(image, text_input)
         dictionary_data = {'product_no': product_no, 'embedding': embedding.cpu().detach().numpy().reshape(-1)}

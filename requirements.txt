@@ -1,0 +1,13 @@
+#pytorch==1.8.0
+bs4==0.0.1
+transformers==4.8.1
+timm==0.4.9
+scikit-image==0.19.3
+opencv-python==4.6.0.66
+matplotlib==3.6.2
+git+ssh://git@github.com/BabyshopGroup/snowflake-helper.git@1.0.0
+#hnswlib==0.6.2
+pynndescent==0.5.8
+google-cloud-storage==2.6.0
+fsspec==2022.11.0
+gcsfs==2022.11.0
