@@ -70,9 +70,9 @@ def getAttMap(img, attMap, blur=True, overlap=True):
 def get_image(image_url: str):
     r = requests.get(image_url, stream=True)
     if r.status_code == 200:
-        with open("../../img.png", 'wb') as f:
+        with open("img.png", 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
-    im = Image.open("../../img.png").convert('RGB')
+    im = Image.open("img.png").convert('RGB')
 
     return im
