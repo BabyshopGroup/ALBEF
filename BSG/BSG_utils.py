@@ -10,7 +10,7 @@ from PIL import Image
 
 
 # TEXT PROCESSING
-def pre_caption(caption: str, max_words: int=30) -> str:
+def pre_caption(caption: str, max_words: int = 30) -> str:
     caption = re.sub(
         r"([,.'!?\"()*#:;~])",
         '',
@@ -76,3 +76,25 @@ def get_image(image_url: str):
     im = Image.open("img.png").convert('RGB')
 
     return im
+
+
+def product_visualizer(article_numbers: list, article_brands: list, article_titles: list, article_images: list, avg_prices: list, n_rows: int, n_cols: int):
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(25, 25))
+    article_counter = 0
+    for row in range(n_rows):
+        for col in range(n_cols):
+            image_url = article_images[article_counter]
+            r = requests.get(image_url, stream=True)
+            if r.status_code == 200:
+                with open("../img.png", 'wb') as f:
+                    r.raw.decode_content = True
+                    shutil.copyfileobj(r.raw, f)
+            im = io.imread("../img.png")
+            axs[row, col].imshow(im)
+            axs[row, col].set_title(f'{article_brands[article_counter]} - {article_numbers[article_counter]} - {article_titles[article_counter]}')
+            axs[row, col].set_xlabel(f'Avg price - {avg_prices[article_counter]}')
+            article_counter += 1
+            if article_counter > len(article_numbers)-1:
+                break
+        if article_counter > len(article_numbers)-1:
+            break
