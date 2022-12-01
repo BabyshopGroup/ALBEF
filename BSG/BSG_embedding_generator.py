@@ -8,10 +8,10 @@ from PIL import Image
 from BSG_utils import get_image, clean_description
 from tqdm import tqdm
 
-torch.device("mps")
+#torch.device("mps")
 
 
-def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: str, use_cuda: bool) -> pd.DataFrame:
+def embedding_generator(data: pd.DataFrame, model_path: str, text_column_name: str, bert_config_path: str, use_cuda: bool) -> pd.DataFrame:
 
     if torch.has_mps:
         device = torch.device('mps')
@@ -46,7 +46,7 @@ def embedding_generator(data: pd.DataFrame, model_path: str, bert_config_path: s
         image_pil = get_image(image_path)
         image = transform(image_pil).unsqueeze(0)
 
-        caption = row['description']
+        caption = row[text_column_name]
         caption = clean_description(caption)
         text = pre_caption(caption)
         text_input = tokenizer(text, return_tensors="pt")

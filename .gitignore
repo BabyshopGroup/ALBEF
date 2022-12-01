@@ -1,5 +1,6 @@
 # Models
 model.h5
+BSG/models_downloaded
 tokenizer.pickle
 .DS_store
 # Byte-compiled / optimized / DLL files
