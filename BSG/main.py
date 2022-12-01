@@ -43,10 +43,7 @@ if cleaned_new_products_information.shape[0] > 0:
                                      text_column_name=text_column_name, bert_config_path=bert_config_path,
                                      use_cuda=use_cuda)
 
-    # Concatenar new embeddings a los ya existentes
-
     embeddings = pd.concat([articles_with_embeddings, new_article_embeddings], ignore_index=True)
-
     embeddings.to_pickle(upload_file_embeddings)
 
     # Compute distances
