@@ -59,7 +59,7 @@ def embedding_generator(data: pd.DataFrame, model_path: str, text_column_name: s
             text_input = text_input.to(device)
 
         embedding = model(image, text_input)
-        dictionary_data = {'product_no': product_no, 'embedding': embedding.cpu().detach().numpy().reshape(-1)}
+        dictionary_data = {'product_no': product_no, 'embedding': list(embedding.cpu().detach().numpy().reshape(-1))}
         embedding_data.extend([dictionary_data])
     embeddings = pd.DataFrame(embedding_data)
     return embeddings

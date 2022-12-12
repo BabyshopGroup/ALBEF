@@ -17,8 +17,8 @@ use_cuda = False
 text_column_name = 'description'  # We could use either "title" or "description" depending on the text we would like to use.
 embeddings_column_name = 'embedding'
 product_column_name = 'product_no'
-distance = 'cosine'
-n_outputs = 300
+distance = 'euclidean'
+n_outputs = 301
 upload_file_closest_articles = 'gs://bsg-image-recommendation/ALBEF/ALBEF_closest_articles_per_product.pickle'
 upload_file_embeddings = 'gs://bsg-image-recommendation/ALBEF/ALBEF_embeddings_of_products.pickle'
 
@@ -44,7 +44,7 @@ if cleaned_new_products_information.shape[0] > 0:
                                      use_cuda=use_cuda)
 
     embeddings = pd.concat([articles_with_embeddings, new_article_embeddings], ignore_index=True)
-    embeddings.to_pickle(upload_file_embeddings)
+    # embeddings.to_pickle(upload_file_embeddings)
 
     # Compute distances
     distances = compute_distance(input_data=embeddings,
